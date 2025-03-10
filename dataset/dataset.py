@@ -13,7 +13,7 @@ class Dataset2D(Dataset):
     def __init__(self, data_root:str, mode:str,transforms = None):
         super().__init__()
         self.transform = transforms
-        if mode not in ['train', 'test']:
+        if mode not in ['train', 'val', 'test']:
             raise ValueError('Chose mode between : "train" or "test" ')
         self.mode = mode
         self.dataset = datasets.ImageFolder(str(data_root + '/' + mode), transform = self.transform)

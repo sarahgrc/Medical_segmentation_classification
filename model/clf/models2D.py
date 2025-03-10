@@ -24,6 +24,13 @@ class ResNet(nn.Module):
         in_features = self.model.fc.in_features
         self.model.fc = nn.Linear(in_features, num_class)
 
+        # freeze -- unfreeze trainable layers
+        for name, param in self.model.named_parameters():
+            if any(layer in name for layer in trainable_layers):
+                param.requires_grad = True
+            else :
+                param.requires_grad = False
+
         if wgth :
             self.model.load_statedict(torch.load(wgth))
             print(f' ** Weights loadded from {wgth} **')
@@ -35,7 +42,7 @@ class ResNet(nn.Module):
 
 
 class EfficienceNet(nn.Module):
-    def __init__(self, num_class : int, model_name:str, wgth = None):
+    def __init__(self, num_class : int, model_name:str, trainable_layers: list, wgth = None):
         super().__init__()
         available_models = {
             'effb0':models.efficientnet_b0,
@@ -49,6 +56,12 @@ class EfficienceNet(nn.Module):
         # modifying classifier layer
         in_features = self.model.classifier[1].in_features
         self.model.classifier[1] = nn.Linear(in_features, num_class)
+
+        for name, param in self.model.named_parameters :
+            if any(layer in name for layer in trainable_layers) :
+                param.requires_grad = True
+            else :
+                param.requires_grad =False
 
         if wgth:
             self.model.load_state_dict(torch.load(wgth))
