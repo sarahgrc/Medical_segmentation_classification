@@ -10,21 +10,11 @@ from tqdm import tqdm
 import matplotlib.pyplot as plt
 import torch.optim as optim
 
-# writer = SummaryWriter('../../runs/train/')
-# writer.add_scalar(name, tensor, iteration)
-# writer.add_histogram(name, tensor, iteration)
 
 
-# train( , , train_su if itere %10 ==0 else None,)
-# dans les fc on rajouter aussi writer
-# dans fontion du train
-# def train_one_iter(model, opt, im, label, writer, iter)
-# if writer is not None,:
-#    writer.add_scalar('loss', loss, iter)
+data_root = './archive'
 
-data_root = 'C:/Users/julie/OneDrive/Bureau/Sarah/cours 5A/projet M2/propre/data_clf_2d/archive'
 
-# Dealing with medical images we have to have a special care with resizing and prefer cropping to certain size rather than resizing
 train_transforms = transforms.Compose([
     transforms.Resize((256,256)),
     # data augmentation
@@ -43,35 +33,18 @@ test_transforms = transforms.Compose([
     transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 ])
 
-train_dataset = Dataset2D(data_root=data_root,
-                          transforms=train_transforms,
-                          mode='train')
-
-val_dataset = Dataset2D(data_root=data_root,
-                        transforms=train_transforms,
-                        mode='val')
-
-test_dataset = Dataset2D(data_root=data_root,
-                         transforms=test_transforms,
-                         mode='test')
-
-train_dataset.get_info()
-test_dataset.get_info()
-
-train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
-val_loader = DataLoader(val_dataset, batch_size=32, shuffle=True)
-test_loader = DataLoader(test_dataset, batch_size=32, shuffle=True)
-
-resnet50 = ResNet(num_class=4, model_name='ResNet50', trainable_layers=['layer4', 'fc'])
-resnet34 = ResNet(num_class=4, model_name='ResNet34', trainable_layers=['layer4', 'fc'])
 
 
-def train(model, train_loader, val_loader, num_epochs=25, lr=1e-4, device='cpu', name_wtg =''):
+
+def train(model, train_loader, val_loader, num_epochs=25, lr=1e-4, device='cpu', tolerance = 4, name_wtg =''):
+
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=lr, weight_decay=1e-4)
 
     train_losses = []
     val_losses = []
+
+    tolerance_c = 0
 
     for epoch in range(num_epochs):
         print(f"\nEpoch {epoch + 1}/{num_epochs}")
@@ -113,6 +86,13 @@ def train(model, train_loader, val_loader, num_epochs=25, lr=1e-4, device='cpu',
         if val_loss == min(val_losses):
             torch.save(model.state_dict(), f"best_model_{name_wtg}.pth")
 
+        # early stop
+        if val_loss > val_losses[-1] :
+            tolerance_c += 1
+            if tolerance_c == tolerance :
+                print(f'** EARLY STOPPING ** at epoch : {tolerance_c}')
+                break
+
 
     # Visualisation
     plt.figure(figsize=(8, 6))
@@ -126,5 +106,33 @@ def train(model, train_loader, val_loader, num_epochs=25, lr=1e-4, device='cpu',
     plt.show()
 
 
-train(resnet34, train_loader, val_loader, name_wtg='resnet34_25epoch')
-train(resnet50, train_loader, val_loader, name_wtg='resnet50_25epoch')
+
+if __name__ == '__main__' :
+    # data loader
+    train_dataset = Dataset2D(data_root=data_root,
+                              transforms=train_transforms,
+                              mode='train')
+
+    val_dataset = Dataset2D(data_root=data_root,
+                            transforms=train_transforms,
+                            mode='val')
+
+    test_dataset = Dataset2D(data_root=data_root,
+                             transforms=test_transforms,
+                             mode='test')
+    # display data info
+    train_dataset.get_info()
+    test_dataset.get_info()
+
+    train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
+    val_loader = DataLoader(val_dataset, batch_size=32, shuffle=True)
+    test_loader = DataLoader(test_dataset, batch_size=32, shuffle=True)
+
+    # models
+    resnet50 = ResNet(num_class=4, model_name='ResNet50', trainable_layers=['layer4', 'fc'])
+    resnet34 = ResNet(num_class=4, model_name='ResNet34', trainable_layers=['layer4', 'fc'])
+
+    # train
+    train(resnet34, train_loader, val_loader, name_wtg='resnet34_10epoch')
+    train(resnet50, train_loader, val_loader, name_wtg='resnet50_10epoch')
+    train(resnet34, train_loader, val_loader, name_wtg='resnet34_10epoch')
