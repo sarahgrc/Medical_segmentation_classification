@@ -8,7 +8,9 @@ This repository contains a deep learning pipeline for classifying brain tumors u
 ##  TODO
 
 - [ ] Update training loop
+- [ ] Update run.py
 - [ ] Add explainability module
 - [ ] Update run file
 - [ ] Add image processing pipeline
 - [ ] Add requirements
+- [ ] Update readme with project architecture and guide line
