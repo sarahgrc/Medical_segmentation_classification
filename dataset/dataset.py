@@ -33,4 +33,4 @@ class Dataset2D(Dataset):
 
         total_len = len(self.dataset)
         for class_idx, count in class_count.items():
-            print(f'class : {self.dataset.classes[class_idx]} - : {count/total_len *100}%')
+            print(f'class : {self.dataset.classes[class_idx]} - : {count/total_len *100:.2f}%')
