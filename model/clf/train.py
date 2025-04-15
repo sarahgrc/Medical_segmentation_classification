@@ -11,17 +11,6 @@ import torch.optim as optim
 from sklearn.metrics import classification_report, confusion_matrix
 
 
-# writer = SummaryWriter('../../runs/train/')
-# writer.add_scalar(name, tensor, iteration)
-# writer.add_histogram(name, tensor, iteration)
-
-
-# train( , , train_su if itere %10 ==0 else None,)
-# dans les fc on rajouter aussi writer
-# dans fontion du train
-# def train_one_iter(model, opt, im, label, writer, iter)
-# if writer is not None,:
-#    writer.add_scalar('loss', loss, iter)
 
 
 def parser():
@@ -37,7 +26,7 @@ def parser():
                         required=True)
     parser.add_argument('--model_name',
                         type=str,
-                        help='name between : [ResNet50, ResNet34, ResNet18, ResNet101] or effb0, effv2s',
+                        help='class of the model name, name between : [ResNet50, ResNet34, ResNet18, ResNet101] or effb0, effv2s',
                         required = True)
     parser.add_argument('--trainable_layers',
                         type = str,
@@ -75,7 +64,7 @@ def train(model, train_loader: DataLoader, val_loader, num_epochs: int = 25, lr:
     """
     Train the given model using CrossEntropyLoss and Adam optimizer.
     :param model: model to train
-    :param train_loader: trainning data loader
+    :param train_loader: training data loader
     :param val_loader: validation data loader
     :param num_epochs: number of epochs to train on
     :param lr: learning rate
@@ -203,7 +192,6 @@ def evaluation(model, test_loader, classes_names: list, device: str = 'cpu'):
 
 
 if __name__ == '__main__':
-    data_root = 'C:/Users/julie/OneDrive/Bureau/Sarah/cours 5A/projet M2/propre/data_clf_2d/archive'
 
     # Get parsed arguments
     args = parser().parse_args()
@@ -243,37 +231,12 @@ if __name__ == '__main__':
     test_loader = DataLoader(test_dataset, batch_size=32, shuffle=True)
 
     # models ResNet
-    resnet50 = ResNet(num_class=4, model_name='ResNet50', trainable_layers=['layer4', 'fc'])
-    resnet34 = ResNet(num_class=4, model_name='ResNet34', trainable_layers=['layer4', 'fc'])
-    resnet34_l = ResNet(num_class=4, model_name='ResNet34', trainable_layers=['fc'])
-    resnet18 = ResNet(num_class=4, model_name='ResNet18', trainable_layers=['layer4', 'fc'])
+    #resnet50 = ResNet(num_class=4, model_name='ResNet50', trainable_layers=['layer4', 'fc'])
+    #resnet34 = ResNet(num_class=4, model_name='ResNet34', trainable_layers=['layer4', 'fc'])
+    #resnet34_l = ResNet(num_class=4, model_name='ResNet34', trainable_layers=['fc'])
+    #resnet18 = ResNet(num_class=4, model_name='ResNet18', trainable_layers=['layer4', 'fc'])
 
-    # models EfficientNet
-    # effv2 = EfficienceNet(num_class=4, model_name='effv2s', )
+    # todo : add get model function that instantiate model from argument in argparser
 
-    # train
-    # train(resnet34, train_loader, val_loader, num_epochs = 10, name_wtg='resnet34',device)
-    # train(resnet34_l, train_loader, val_loader, num_epochs=20, name_wtg='resnet34_l', device) # upp num_epochs ?
-    # train(resnet50, train_loader, val_loader, name_wtg='resnet50_10epoch', device)
-    # train(resnet18, train_loader, val_loader, name_wtg='resnet18', device)
 
-    # Evaluation
-    # model1 =  ResNet(num_class=4, model_name='ResNet34', trainable_layers=['layer4', 'fc'])
-    whg_early_s = 'C:/Users/julie/OneDrive/Bureau/Sarah/Projets_Python/Medical_segmentation_classification/model/clf/best_model_resnet34_epoch6_early_stop.pth'
-    resnet34.load_state_dict(torch.load(whg_early_s))
-    evaluation(resnet34, test_loader, classes_dico, device)
 
-    whg1 = 'C:/Users/julie/OneDrive/Bureau/Sarah/Projets_Python/Medical_segmentation_classification/model/clf/best_model_resnet34_25epoch.pth'
-    resnet34.load_state_dict(torch.load(whg1))
-    print('/n', '****** RESNET 34 ******')
-    evaluation(resnet34, test_loader, classes_dico, device)
-
-    whg2 = 'C:/Users/julie/OneDrive/Bureau/Sarah/Projets_Python/Medical_segmentation_classification/model/clf/best_model_resnet50_25epoch.pth'
-    resnet50.load_state_dict(torch.load(whg2))
-    print('/n', '****** RESNET 50 ******')
-    evaluation(resnet50, test_loader, classes_dico, device)
-
-    # whg3 = 'C:/Users/julie/OneDrive/Bureau/Sarah/Projets_Python/Medical_segmentation_classification/model/clf/best_model_resnet34_25epoch.pth'
-    # resnet18.load_state_dict(torch.load(whg3))
-    # print('/n', '****** RESNET 18 ******')
-    # evaluation(resnet18, test_loader)
